@@ -16,8 +16,8 @@ jobs:
 
       - name: Build Docker image
         run: |
-          docker build -t myapp:$${GITHUB_SHA::8} .
-          docker tag myapp:$${GITHUB_SHA::8} "${{ secrets.DOCKERHUB_USERNAME }}"/myapp:$${GITHUB_SHA::8}
+          docker build -t myapp:${GITHUB_SHA::8} .
+          docker tag myapp:${GITHUB_SHA::8} "${{ secrets.DOCKERHUB_USERNAME }}"/myapp:$${GITHUB_SHA::8}
           docker images
 
       - name: Scan image with Trivy
