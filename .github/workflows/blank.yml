@@ -30,4 +30,4 @@ jobs:
 
       - name: Push Docker image to DockerHub
         if: success()
-        run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/myapp:${{github.sha}}
+        run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/myapp:${{github.sha::8}}
