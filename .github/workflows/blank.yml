@@ -22,7 +22,7 @@ jobs:
       - name: Scan image with Trivy
         uses: aquasecurity/trivy-action@master
         with:
-          image-ref: 'myusername/myapp:${{ github.sha }}'
+          image-ref: 'markinjo19/myapp:${{ github.sha }}'
           format: 'table'
           exit-code: 1
           ignore-unfixed: true
