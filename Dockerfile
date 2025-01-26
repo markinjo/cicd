@@ -13,7 +13,7 @@ RUN apk add --no-cache \
     openssl \
     ca-certificates
 
-# Instaliraj Checkov
+# Instaliraj Checkov 
 RUN pip3 install --no-cache-dir checkov
 
 # Proveri instalaciju svih alata
