@@ -1,4 +1,4 @@
-name: Build, Scan, and Push Docker Image 2222222
+name: Build Scan Push Image 
 
 on:
   workflow_dispatch:  # Ručno pokretanje
@@ -12,12 +12,6 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
         
-      - name: prikay outputs
-        id: vars
-        run: echo "sha_short=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
-        
-      - name: prikayivanje outputs
-        run: echo ${{ steps.vars.outputs.sha_short }}
         
       - name: Log in to DockerHub
         run: echo "${{ secrets.DOCKERHUB_PASSWORD }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
@@ -39,6 +33,5 @@ jobs:
       - name: Push Docker image to DockerHub
         if: success()
         run: |
-          #docker tag myapp:${{github.sha}} ${{ secrets.DOCKERHUB_USERNAME }}/myapp:${{ steps.vars.outputs.sha_short }}
           docker tag myapp:${{github.sha}} ${{ secrets.DOCKERHUB_USERNAME }}/myapp:${GITHUB_SHA::8}
           docker push ${{ secrets.DOCKERHUB_USERNAME }}/myapp:${GITHUB_SHA::8}
