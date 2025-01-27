@@ -1,4 +1,4 @@
-name: Build Scan Push Image 2
+name: Build Scan Push Image 234
 
 on:
   workflow_dispatch:  # Ručno pokretanje
