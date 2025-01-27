@@ -1,0 +1,41 @@
+name: Build, Scan, and Push Docker Image 2222222
+
+on:
+  workflow_dispatch:  # Ručno pokretanje
+
+jobs:
+  build-and-scan:
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: prikay outputs
+        id: vars
+        run: echo "sha_short=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+        
+      - name: prikayivanje outputs
+        run: echo ${{ steps.vars.outputs.sha_short }}
+        
+      - name: Log in to DockerHub
+        run: echo "${{ secrets.DOCKERHUB_PASSWORD }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
+
+      - name: Build Docker image
+        run: |
+          docker build -t myapp:${{ steps.vars.outputs.sha_short }} .
+          docker tag myapp:${{github.sha}} ${{ secrets.DOCKERHUB_USERNAME }}/myapp:${{ steps.vars.outputs.sha_short }}
+
+      - name: Scan image with Trivy
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: '${{ secrets.DOCKERHUB_USERNAME }}/myapp:$${{ steps.vars.outputs.sha_short }}'
+          format: 'table'
+          exit-code: 1
+          ignore-unfixed: true
+          vuln-type: 'os,library'
+
+      - name: Push Docker image to DockerHub
+        if: success()
+        run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/myapp:${{ steps.vars.outputs.sha_short }}
