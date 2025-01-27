@@ -24,14 +24,14 @@ jobs:
 
       - name: Build Docker image
         run: |
-          docker build -t myapp:${{ steps.vars.outputs.sha_short }} .
+          docker build -t myapp:${{github.sha}} .
           docker images
          # docker tag myapp:${{github.sha}} ${{ secrets.DOCKERHUB_USERNAME }}/myapp:${{ steps.vars.outputs.sha_short }}
 
       - name: Scan image with Trivy
         uses: aquasecurity/trivy-action@master
         with:
-          image-ref: '${{ secrets.DOCKERHUB_USERNAME }}/myapp:${{ steps.vars.outputs.sha_short }}'
+          image-ref: '${{ secrets.DOCKERHUB_USERNAME }}/myapp:${{github.sha}}'
           format: 'table'
           exit-code: 1
           ignore-unfixed: true
@@ -39,4 +39,6 @@ jobs:
 
       - name: Push Docker image to DockerHub
         if: success()
-        run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/myapp:${{ steps.vars.outputs.sha_short }}
+        run: |
+          docker tag myapp:${{github.sha}} ${{ secrets.DOCKERHUB_USERNAME }}/myapp:${{ steps.vars.outputs.sha_short }}
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/myapp:${{ steps.vars.outputs.sha_short }}
