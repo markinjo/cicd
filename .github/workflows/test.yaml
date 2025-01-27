@@ -19,7 +19,6 @@ jobs:
       - name: Build Docker image
         run: |
           docker build -t myapp:${{github.sha}} .
-          #docker tag myapp:${{github.sha}} ${{ secrets.DOCKERHUB_USERNAME }}/myapp:${{github.sha}}
 
       - name: Scan image with Trivy
         uses: aquasecurity/trivy-action@master
@@ -33,5 +32,6 @@ jobs:
       - name: Push Docker image to DockerHub
         if: success()
         run: |
-          docker tag myapp:${{github.sha}} ${{ secrets.DOCKERHUB_USERNAME }}/myapp:${GITHUB_SHA::8}
-          docker push ${{ secrets.DOCKERHUB_USERNAME }}/myapp:${GITHUB_SHA::8}
+          docker tag myapp:${{github.sha}} ${{ secrets.DOCKERHUB_USERNAME }}/myapp2:${{GITHUB_SHA::8}}
+          docker images
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/myapp2:${{GITHUB_SHA::8}}
