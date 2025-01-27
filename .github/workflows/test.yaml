@@ -41,4 +41,4 @@ jobs:
         run: |
           #docker tag myapp:${{github.sha}} ${{ secrets.DOCKERHUB_USERNAME }}/myapp:${{ steps.vars.outputs.sha_short }}
           docker tag myapp:${{github.sha}} ${{ secrets.DOCKERHUB_USERNAME }}/myapp:${GITHUB_SHA::8}
-          docker push ${{ secrets.DOCKERHUB_USERNAME }}/myapp:${{ steps.vars.outputs.sha_short }}
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/myapp:${GITHUB_SHA::8}
