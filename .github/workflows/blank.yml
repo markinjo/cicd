@@ -1,4 +1,4 @@
-name: Build, Scan, and Push Docker Image
+name: Build Scan Push Image 777
 
 on:
   workflow_dispatch:  # Ručno pokretanje
@@ -6,31 +6,30 @@ on:
 jobs:
   build-and-scan:
     runs-on: ubuntu-latest
+	inputs:
+      environment:
+        description: 'Ime kako ce se zvati image'
+        required: true
+        default: 'staging'
+        type: string
 
     steps:
 
       - name: Checkout code
         uses: actions/checkout@v4
         
-      - name: prikay outputs
-        id: vars
-        run: echo "sha_short=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
-        
-      - name: prikayivanje outputs
-        run: echo ${{ steps.vars.outputs.sha_short }}
         
       - name: Log in to DockerHub
         run: echo "${{ secrets.DOCKERHUB_PASSWORD }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
 
       - name: Build Docker image
         run: |
-          docker build -t myapp:${{github.sha}} .
-          docker tag myapp:${{github.sha}} ${{ secrets.DOCKERHUB_USERNAME }}/myapp:${{github.sha}}
+          docker build -t ${{ inputs.environment }}:${{github.sha}} .
 
       - name: Scan image with Trivy
         uses: aquasecurity/trivy-action@master
         with:
-          image-ref: '${{ secrets.DOCKERHUB_USERNAME }}/myapp:${{github.sha}}'
+          image-ref: '${{ inputs.environment }}:${{github.sha}}'
           format: 'table'
           exit-code: 1
           ignore-unfixed: true
@@ -38,4 +37,7 @@ jobs:
 
       - name: Push Docker image to DockerHub
         if: success()
-        run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/myapp:${{github.sha}}
+        run: |
+          docker tag ${{ inputs.environment }}:${{github.sha}} ${{ secrets.DOCKERHUB_USERNAME }}/${{ inputs.environment }}2:${GITHUB_SHA::8}
+          docker images
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/${{ inputs.environment }}2:${GITHUB_SHA::8}
