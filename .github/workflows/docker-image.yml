@@ -1,0 +1,43 @@
+name: Build Scan Push Image eeeee
+
+on:
+  workflow_dispatch:  # Ručno pokretanje
+
+jobs:
+  build-and-scan:
+    runs-on: ubuntu-latest
+	inputs:
+      environment:
+        description: 'Ime kako ce se zvati image'
+        required: true
+        default: 'staging'
+        type: string
+
+    steps:
+
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+        
+      - name: Log in to DockerHub
+        run: echo "${{ secrets.DOCKERHUB_PASSWORD }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
+
+      - name: Build Docker image
+        run: |
+          docker build -t ${{ inputs.environment }}:${{github.sha}} .
+
+      - name: Scan image with Trivy
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: '${{ inputs.environment }}:${{github.sha}}'
+          format: 'table'
+          exit-code: 1
+          ignore-unfixed: true
+          vuln-type: 'os,library'
+
+      - name: Push Docker image to DockerHub
+        if: success()
+        run: |
+          docker tag ${{ inputs.environment }}:${{github.sha}} ${{ secrets.DOCKERHUB_USERNAME }}/${{ inputs.environment }}2:${GITHUB_SHA::8}
+          docker images
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/${{ inputs.environment }}2:${GITHUB_SHA::8}
