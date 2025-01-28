@@ -1,4 +1,4 @@
-name: Build, Scan, and Push Docker Image
+name: Build, Scan, and Push Docker Image ci/cd
 
 on:
   workflow_dispatch:
